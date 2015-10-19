@@ -4,6 +4,7 @@ titandb_download_dir: /usr/local/src/
 titandb_home_dir_root: /usr/local/share
 titandb_home_dir: /usr/local/share/titandb
 titandb_data_dir:
+titandb_conf_dir: /etc/titandb
 
 titandb_version: 0.5.1
 titandb_hadoop_version: 2
