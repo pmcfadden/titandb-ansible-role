@@ -15,7 +15,7 @@
   #   - restart titandb
 
 - name: Create user
-  user: name={{ titandb_user_name }} comment="{{ titandb_user_comment }}" uid={{ titandb_user_uid }} group={{ titandb_user_group }} groups={{ titandb_user_groups }} shell={{ titandb_user_shell }} home={{ titandb_home_dir }}
+  user: name={{ titandb_user_name }} comment="{{ titandb_user_comment }}" uid={{ titandb_user_uid }} group={{ titandb_user_group }} groups={{ titandb_user_groups }} shell={{ titandb_user_shell }} home={{ titandb_home_dir }} createhome=no
   # notify:
   #   - restart titandb
 
