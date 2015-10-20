@@ -1,4 +1,9 @@
 ---
+- name: Create group
+  group: name={{ titandb_group_name }} gid={{ titandb_group_gid }}
+
+- name: Create user
+  user: name={{ titandb_user_name }} comment="{{ titandb_user_comment }}" uid={{ titandb_user_uid }} group={{ titandb_user_group }} groups={{ titandb_user_groups }} shell={{ titandb_user_shell }} home={{ titandb_home_dir }} createhome=no
 
 - name: Download release
   get_url: url="{{ titandb_release_url }}" dest="{{ titandb_download_dir }}/{{ titandb_release_basezip }}"
@@ -9,30 +14,34 @@
     chdir: "{{ titandb_home_dir_root }}"
     creates: "{{ titandb_home_dir_root }}/{{ titandb_release_basename }}"
 
-- name: Create group
-  group: name={{ titandb_group_name }} gid={{ titandb_group_gid }}
-  # notify:
-  #   - restart titandb
-
-- name: Create user
-  user: name={{ titandb_user_name }} comment="{{ titandb_user_comment }}" uid={{ titandb_user_uid }} group={{ titandb_user_group }} groups={{ titandb_user_groups }} shell={{ titandb_user_shell }} home={{ titandb_home_dir }} createhome=no
-  # notify:
-  #   - restart titandb
+- name: Change ownership of titandb files
+  command: "chown -R {{ titandb_user_group }}:{{ titandb_user_name }} ."
+  args:
+    chdir: "{{ titandb_home_dir_root }}/{{ titandb_release_basename }}"
 
 - name: Link release
   file: path="{{ titandb_home_dir }}" state=link src="{{ titandb_home_dir_root }}/{{titandb_release_basename }}"  owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0755
 
-- name: Create configuration directory
-  file: dest={{ titandb_conf_dir }} state=directory owner=root group=root mode=0755
-    
-- name: Create configuration file
-  template: src=titandb.properties.j2 dest="{{ titandb_conf_dir }}/titandb.properties" owner=root group=root mode=0644
+#- name: Create configuration directory
+#  file: dest={{ titandb_conf_dir }} state=directory owner=root group=root mode=0755
+#
+#- name: Create configuration file
+#  template: src=titandb.properties.j2 dest="{{ titandb_conf_dir }}/titandb.properties" owner=root group=root mode=0644
 
-# - name: Create upstart configuration file
-#   template: src=upstart.conf.j2 dest=/etc/init/titandb.conf owner=root group=root mode=0644
-#   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu" 
+- name: Create upstart configuration file
+  template: src=upstart.conf.j2 dest=/etc/init/titandb.conf owner=root group=root mode=0644
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu" 
+
+#- name: Start titan server
+#  shell: "{{ titandb_home_dir }}/bin/titan.sh start"
+#  sudo: yes
+#  sudo_user: root
 #   notify:
 #     - restart titandb
 
-# - name: Start titandb
-#   service: name=titandb state={{titandb_state}} enabled={{ titandb_enable }}
+- name: Reload init conf
+  command: "initctl reload-configuration"
+  sudo: yes
+  sudo_user: root
+- name: Start titandb
+  service: name=titandb state={{titandb_state}} enabled={{ titandb_enable }}

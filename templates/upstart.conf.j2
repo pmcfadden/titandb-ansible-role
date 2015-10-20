@@ -1,17 +1,24 @@
 description "titandb"
 
-exec 2>&1
 
 start on runlevel [2345]
 stop on runlevel [!2345]
 
-respawn
-respawn limit 10 5
-
 console log
 
-setuid {{ titandb_user_name  }}
-setgid {{ titandb_user_group }}
+respawn
 
-cd {{ titandb_home_dir }}
-exec ./bin/rexter.sh
+setuid {{ titandb_user_name }}
+setgid {{ titandb_group_name }}
+
+env titan="{{ titandb_home_dir }}/bin/titan.sh"
+
+pre-start script
+  $titan start
+  sleep 5
+end script
+
+post-stop script
+  $titan stop
+  sleep 5
+end script
