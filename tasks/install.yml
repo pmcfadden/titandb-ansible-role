@@ -22,26 +22,20 @@
 - name: Link release
   file: path="{{ titandb_home_dir }}" state=link src="{{ titandb_home_dir_root }}/{{titandb_release_basename }}"  owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0755
 
-#- name: Create configuration directory
-#  file: dest={{ titandb_conf_dir }} state=directory owner=root group=root mode=0755
-#
-#- name: Create configuration file
-#  template: src=titandb.properties.j2 dest="{{ titandb_conf_dir }}/titandb.properties" owner=root group=root mode=0644
+- name: Template Server Properties
+  copy: src='titan-cassandra-es.properties' dest={{ titandb_home_dir }}/conf/gremlin-server/titan-cassandra-es-server.properties owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0644
+
+- name: Copy Server Config
+  copy: src='gremlin-server.yaml' dest="{{ titandb_home_dir }}/conf/gremlin-server/gremlin-server.yaml" owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0644
 
 - name: Create upstart configuration file
   template: src=upstart.conf.j2 dest=/etc/init/titandb.conf owner=root group=root mode=0644
-  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu" 
-
-#- name: Start titan server
-#  shell: "{{ titandb_home_dir }}/bin/titan.sh start"
-#  sudo: yes
-#  sudo_user: root
-#   notify:
-#     - restart titandb
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
 
 - name: Reload init conf
   command: "initctl reload-configuration"
   sudo: yes
   sudo_user: root
+
 - name: Start titandb
   service: name=titandb state={{titandb_state}} enabled={{ titandb_enable }}
