@@ -26,7 +26,7 @@
   copy: src='titan-cassandra-es.properties' dest={{ titandb_home_dir }}/conf/gremlin-server/titan-cassandra-es-server.properties owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0644
 
 - name: Copy Server Config
-  copy: src='gremlin-server.yaml' dest="{{ titandb_home_dir }}/conf/gremlin-server/gremlin-server.yaml" owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0644
+  template: src='gremlin-server.yaml.j2' dest="{{ titandb_home_dir }}/conf/gremlin-server/gremlin-server.yaml" owner={{ titandb_user_name }} group={{ titandb_user_group}} mode=0644
 
 - name: Create upstart configuration file
   template: src=upstart.conf.j2 dest=/etc/init/titandb.conf owner=root group=root mode=0644
